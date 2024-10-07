@@ -3,6 +3,7 @@ using UnityEngine;
 public class EnemyHealth : MonoBehaviour
 {
     public int health = 100;  // Darah awal enemy
+    public GameObject itemDropPrefab;  // Prefab item yang akan didrop
 
     // Fungsi untuk menerima damage
     public void TakeDamage(int damage)
@@ -19,7 +20,21 @@ public class EnemyHealth : MonoBehaviour
     // Fungsi untuk menghancurkan enemy
     void Die()
     {
+        // Hancurkan enemy
+        // Tambahkan logika untuk drop item
+        DropItem();
+
         // Hancurkan gameObject enemy
         Destroy(gameObject);
+    }
+
+    // Fungsi untuk mendrop item
+    void DropItem()
+    {
+        if (itemDropPrefab != null)
+        {
+            // Buat item drop di posisi enemy
+            Instantiate(itemDropPrefab, transform.position, Quaternion.identity);
+        }
     }
 }

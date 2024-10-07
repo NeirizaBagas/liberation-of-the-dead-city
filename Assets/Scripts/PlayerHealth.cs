@@ -4,24 +4,51 @@ using UnityEngine;
 
 public class PlayerHealth : MonoBehaviour
 {
-    public int health = 100;  // Darah awal enemy
+    public int maxHealth = 100;       // Darah maksimal
+    public int currentHealth;          // Darah saat ini
+    public int healAmount = 20;        // Jumlah penyembuhan ketika mengambil item heal
+
+    private void Start()
+    {
+        currentHealth = maxHealth;     // Set current health ke maxHealth di awal
+    }
 
     // Fungsi untuk menerima damage
     public void TakeDamage(int damage)
     {
-        health -= damage;  // Kurangi darah dengan nilai damage
+        currentHealth -= damage;        // Kurangi darah dengan nilai damage
 
-        // Jika darah sama dengan atau kurang dari 0, enemy mati
-        if (health <= 0)
+        // Jika current health sama dengan atau kurang dari 0, player mati
+        if (currentHealth <= 0)
         {
             Die();
         }
     }
 
-    // Fungsi untuk menghancurkan enemy
+    // Fungsi untuk menghancurkan player
     void Die()
     {
-        // Hancurkan gameObject enemy
+        // Hancurkan gameObject player
         Destroy(gameObject);
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.gameObject.CompareTag("Heal"))
+        {
+            Heal();
+            Destroy(other.gameObject);      // Hancurkan item heal setelah diambil
+        }
+    }
+
+    // Fungsi untuk menambah health
+    void Heal()
+    {
+        currentHealth += healAmount;      // Tambahkan health
+        if (currentHealth > maxHealth)     // Pastikan tidak melebihi max health
+        {
+            currentHealth = maxHealth;     // Set ke max health jika lebih
+        }
+        Debug.Log("Health sekarang: " + currentHealth);  // Debug untuk melihat health saat ini
     }
 }
