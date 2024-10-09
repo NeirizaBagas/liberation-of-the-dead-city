@@ -1,7 +1,9 @@
+using System.Collections;
 using UnityEngine;
 
 public class PlayerAttack : MonoBehaviour
 {
+    // Range Attack (Peluru)
     public GameObject bulletPrefab;  // Prefab peluru
     public Transform firePoint;  // Posisi tempat peluru keluar
     public float bulletSpeed = 10f;  // Kecepatan peluru
@@ -11,19 +13,24 @@ public class PlayerAttack : MonoBehaviour
     public int currentAmmoInGun;  // Peluru yang tersedia di senjata saat ini
     public int totalAmmo = 20;  // Total peluru (magazine)
     public int maxTotalAmmo = 20;  // Batas maksimal peluru (magazine)
-    public int addAmmo;
 
     private PlayerMovement playerMovement;  // Reference ke PlayerMovement
+
+    // Melee Attack
+    /*public GameObject meleeHitbox;*/  // Collider yang digunakan untuk hitbox serangan melee
+    public float meleeAttackCooldown = 1f;  // Cooldown antara serangan melee
+    private bool canMelee = true;  // Menentukan apakah player bisa melakukan serangan melee
 
     void Start()
     {
         playerMovement = GetComponent<PlayerMovement>();  // Ambil reference ke script PlayerMovement
         currentAmmoInGun = maxAmmoInGun;  // Set peluru awal ke maksimal
+        /*meleeHitbox.SetActive(false);*/  // Hitbox melee awalnya dimatikan
     }
 
     void Update()
     {
-        // Cek input untuk menembak
+        // Cek input untuk menembak (range attack)
         if (Input.GetButtonDown("Fire1"))
         {
             if (currentAmmoInGun > 0)
@@ -32,7 +39,7 @@ public class PlayerAttack : MonoBehaviour
             }
             else
             {
-                print("Out of ammo. Reload needed.");
+                Debug.Log("Out of ammo. Reload needed.");
             }
         }
 
@@ -40,6 +47,12 @@ public class PlayerAttack : MonoBehaviour
         if (Input.GetButtonDown("Reload"))
         {
             Reload();
+        }
+
+        // Cek input untuk melee attack (Fire2 untuk melee)
+        if (Input.GetButtonDown("Fire2") && canMelee)
+        {
+            StartCoroutine(MeleeAttack());
         }
     }
 
@@ -64,7 +77,6 @@ public class PlayerAttack : MonoBehaviour
             rb.velocity = new Vector2(-bulletSpeed, 0f);  // Peluru ke kiri
         }
 
-        // Debugging untuk memeriksa nilai facingRight
         Debug.Log("Menembak ke arah: " + (playerMovement.facingRight ? "kanan" : "kiri"));
     }
 
@@ -86,12 +98,20 @@ public class PlayerAttack : MonoBehaviour
         }
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
+    // Coroutine untuk Melee Attack
+    IEnumerator MeleeAttack()
     {
-        if (other.gameObject.tag == "Ammo")
-        {
-            totalAmmo += addAmmo;
-            Destroy(other.gameObject);
-        }
+        canMelee = false;  // Mencegah serangan melee berulang-ulang
+        /*meleeHitbox.SetActive(true);*/  // Aktifkan hitbox melee
+
+        Debug.Log("Melakukan serangan melee");
+
+        // Tunggu selama animasi serangan (disesuaikan dengan durasi animasi)
+        yield return new WaitForSeconds(0.5f);
+
+        /*meleeHitbox.SetActive(false);*/  // Nonaktifkan hitbox melee
+        yield return new WaitForSeconds(meleeAttackCooldown);  // Tunggu cooldown sebelum bisa menyerang lagi
+
+        canMelee = true;  // Mengizinkan serangan melee lagi
     }
 }
